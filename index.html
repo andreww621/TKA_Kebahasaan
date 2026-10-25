@@ -1,0 +1,1927 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Soal Maker</title>
+  <style>
+:root {
+  --bg: #f6f4ee;
+  --card: #fffdf8;
+  --ink: #1d1b16;
+  --muted: #6c685c;
+  --line: #e3ddcf;
+  --accent: #2f4fd8;
+  --accent-ink: #ffffff;
+  --accent-soft: #e8ecfd;
+  --ok: #17703f;
+  --ok-bg: #e1f3e8;
+  --bad: #b3261e;
+  --bad-bg: #fbe5e2;
+  --gold: #b7791f;
+  --radius: 14px;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15140f;
+    --card: #1e1d17;
+    --ink: #f2efe5;
+    --muted: #a5a194;
+    --line: #36342b;
+    --accent: #8aa6ff;
+    --accent-ink: #0b1226;
+    --accent-soft: #232a45;
+    --ok: #67d49b;
+    --ok-bg: #13291d;
+    --bad: #ff8f86;
+    --bad-bg: #2f1816;
+    --gold: #f0b54f;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.wrap { max-width: 960px; margin: 0 auto; padding: 24px 16px 80px; }
+
+.top { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+.brand {
+  font: 700 28px/1 var(--serif);
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+.brand span { color: var(--accent); }
+.tag { margin: 0; color: var(--muted); font-size: 14px; }
+
+h1, h2, h3 { font-family: var(--serif); letter-spacing: -0.01em; line-height: 1.2; margin: 0 0 8px; }
+h1 { font-size: 30px; }
+h2 { font-size: 22px; }
+h3 { font-size: 19px; }
+
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+code, .mono { font-family: var(--mono); font-size: 0.9em; }
+code { background: var(--accent-soft); padding: 1px 6px; border-radius: 6px; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.section { margin-top: 32px; }
+.section > h2 { margin-bottom: 14px; }
+
+/* Tombol & input */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font: 600 14px/1 system-ui, sans-serif;
+  padding: 11px 16px;
+  min-height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform .06s ease, border-color .15s ease, background .15s ease;
+}
+.btn:hover { border-color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; pointer-events: none; }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; }
+.btn-ghost.danger { color: var(--bad); }
+.btn-ghost.danger:hover { border-color: var(--bad); background: var(--bad-bg); }
+.btn-small { padding: 8px 12px; min-height: 34px; font-size: 13px; }
+.btn:focus-visible, .input:focus-visible, textarea:focus-visible, .opt:has(input:focus-visible) {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.input, textarea {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 12px;
+}
+textarea {
+  font-family: var(--mono);
+  font-size: 13.5px;
+  line-height: 1.5;
+  min-height: 200px;
+  resize: vertical;
+  tab-size: 2;
+}
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.row.end { justify-content: flex-end; }
+.grow { flex: 1 1 auto; }
+
+/* Pesan */
+.msg { margin-top: 14px; border-radius: 10px; padding: 0; }
+.msg:empty { display: none; }
+.msg.ok, .msg.err { padding: 12px 14px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.msg.ok { background: var(--ok-bg); color: var(--ok); }
+.msg.err { background: var(--bad-bg); color: var(--bad); align-items: flex-start; flex-direction: column; gap: 6px; }
+.msg.err ul { margin: 0; padding-left: 20px; }
+.msg.err li { margin: 2px 0; }
+
+details.help { margin-top: 14px; }
+details.help summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; }
+details.help pre {
+  margin: 10px 0 0; padding: 14px; overflow-x: auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+  font: 12.5px/1.55 var(--mono);
+}
+details.help ul { margin: 10px 0 0; padding-left: 20px; color: var(--muted); font-size: 14px; }
+
+/* Daftar template */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.tpl { display: flex; flex-direction: column; gap: 14px; }
+.tpl h3 { margin: 0; word-break: break-word; }
+.tpl p { margin: 0; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat { background: var(--bg); border-radius: 10px; padding: 10px; min-width: 0; }
+.stat .v { font: 700 22px/1.1 var(--serif); }
+.stat .l { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.stat .s { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stat.hi .v { color: var(--gold); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+.empty { padding: 28px; text-align: center; border: 1.5px dashed var(--line); border-radius: var(--radius); }
+
+/* Mengerjakan soal */
+.quiz-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.back { color: var(--muted); font-size: 14px; text-decoration: none; display: inline-block; margin-bottom: 10px; }
+.back:hover { color: var(--accent); }
+.progress {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--bg); padding: 12px 0 10px; margin-top: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.progress .bar { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 6px; }
+.progress .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s ease; }
+.progress .lbl { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+
+.q { margin-top: 16px; }
+.q .qn { display: flex; gap: 12px; align-items: flex-start; }
+.q .num {
+  flex: none; width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent);
+  font: 700 14px/1 system-ui;
+}
+.q .qt { margin: 3px 0 0; font-size: 17px; white-space: pre-wrap; word-break: break-word; }
+.opts { display: grid; gap: 8px; margin-top: 14px; }
+.opt {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px;
+  cursor: pointer; background: var(--bg);
+  transition: border-color .12s ease, background .12s ease;
+}
+.opt:hover { border-color: var(--accent); }
+.opt input { margin: 4px 0 0; accent-color: var(--accent); flex: none; }
+.opt .ltr { font-weight: 700; color: var(--muted); flex: none; width: 1.2em; }
+.opt .txt { word-break: break-word; white-space: pre-wrap; }
+.opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.opt.static { cursor: default; }
+.opt.static:hover { border-color: var(--line); }
+.opt.correct { border-color: var(--ok); background: var(--ok-bg); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.opt .tagx { margin-left: auto; font-size: 12px; font-weight: 700; flex: none; }
+.opt.correct .tagx { color: var(--ok); }
+.opt.wrong .tagx { color: var(--bad); }
+.fill { margin-top: 14px; }
+
+.submit-bar { margin-top: 24px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+/* Hasil */
+.result { text-align: center; padding: 28px 20px; }
+.result .big { font: 700 72px/1 var(--serif); letter-spacing: -0.03em; }
+.result .big small { font-size: 28px; color: var(--muted); font-weight: 400; }
+.result .sub { color: var(--muted); margin: 6px 0 0; }
+.badge {
+  display: inline-block; margin-top: 14px; padding: 6px 12px; border-radius: 99px;
+  font: 700 13px/1 system-ui; background: var(--accent-soft); color: var(--accent);
+}
+.badge.gold { background: #fff0cf; color: #7a4d00; }
+@media (prefers-color-scheme: dark) { .badge.gold { background: #3a2a0c; color: var(--gold); } }
+.result .actions { justify-content: center; margin-top: 20px; }
+
+.review .q.ok { border-left: 4px solid var(--ok); }
+.review .q.no { border-left: 4px solid var(--bad); }
+.verdict { margin-left: auto; font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 99px; flex: none; }
+.verdict.ok { background: var(--ok-bg); color: var(--ok); }
+.verdict.no { background: var(--bad-bg); color: var(--bad); }
+.answerline { margin: 14px 0 0; font-size: 15px; }
+.answerline b { font-weight: 700; }
+.expl { margin-top: 12px; padding: 10px 12px; background: var(--bg); border-radius: 10px; font-size: 14px; color: var(--muted); white-space: pre-wrap; }
+
+/* Papan skor */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 18px; }
+.tile { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; min-width: 0; }
+.tile .v { font: 700 34px/1.1 var(--serif); }
+.tile .l { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.tile .s { font-size: 13px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tile.hi .v { color: var(--gold); }
+.table-wrap { overflow-x: auto; margin-top: 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); background: var(--bg); }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+td.rank { font-weight: 700; width: 56px; }
+tr.top1 td { background: var(--accent-soft); }
+tr.me td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+  background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 10px;
+  font-size: 14px; z-index: 50; max-width: calc(100% - 32px);
+}
+
+@media (max-width: 520px) {
+  .result .big { font-size: 56px; }
+  h1 { font-size: 26px; }
+  .stat .v { font-size: 19px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+/* Bacaan */
+.passage { margin-top: 12px; background: var(--bg); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 14px 16px; }
+.q > .passage:first-child { margin: 0 0 16px; }
+.passage summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--accent); }
+.passage[open] summary { margin-bottom: 10px; }
+.plabel { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
+.ptext { white-space: pre-wrap; word-break: break-word; font-family: var(--serif); font-size: 16.5px; line-height: 1.65; }
+.hint { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+
+/* Benar / Salah per pernyataan */
+.tfs { margin-top: 10px; }
+.tfrow { display: flex; justify-content: space-between; gap: 12px 16px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.tfrow:first-child { border-top: 0; }
+.tft { margin: 0; flex: 1 1 260px; word-break: break-word; }
+.seg { display: inline-flex; gap: 6px; flex: none; }
+.segopt { position: relative; display: inline-block; }
+.segopt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.segopt span { display: inline-block; min-width: 88px; padding: 9px 16px; text-align: center; border: 1.5px solid var(--line); border-radius: 99px; background: var(--bg); font-weight: 600; font-size: 14px; }
+.segopt:hover span { border-color: var(--accent); }
+.segopt:has(input:checked) span { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.segopt:has(input:focus-visible) span { outline: 3px solid var(--accent); outline-offset: 2px; }
+.tfrow.review { display: block; }
+.tfrow.review .tfans { margin: 6px 0 0; }
+.tfrow.ok .tfans { color: var(--ok); }
+.tfrow.no .tfans { color: var(--bad); }
+
+/* Timer */
+.timer { font-variant-numeric: tabular-nums; font-weight: 700; }
+.timer.low { color: var(--bad); }
+
+/* Terminal */
+.term { padding: 16px; }
+.term-out {
+  margin: 0; padding: 12px 14px; height: 240px; overflow: auto;
+  background: #14130f; color: #e8e4d6; border-radius: 10px;
+  font: 13px/1.5 var(--mono); white-space: pre-wrap; word-break: break-word;
+}
+.term-line { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.term-line .prompt { font: 700 15px var(--mono); color: var(--accent); }
+.term-in { flex: 1; min-width: 0; font: 14px var(--mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.term-in:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="#/">Soal<span>Maker</span></a>
+      <p class="tag">Tempel JSON, langsung jadi soal.</p>
+    </header>
+    <main id="app"><p class="muted">Memuat…</p></main>
+  </div>
+  <script>
+(function () {
+'use strict';
+/* ---------- Parser & validator JSON soal ---------- */
+
+class ValidationError extends Error {
+  constructor(details) {
+    super(details[0] || 'JSON tidak valid');
+    this.details = details;
+  }
+}
+
+// Nama kunci yang diterima (Inggris & Indonesia), supaya JSON dari mana saja tetap jalan.
+const KEYS = {
+  title: ['title', 'judul', 'nama'],
+  description: ['description', 'deskripsi', 'keterangan'],
+  duration: ['durationMinutes', 'durasi', 'duration'],
+  passages: ['passages', 'bacaan', 'wacana'],
+  questions: ['questions', 'soal', 'pertanyaan', 'items'],
+  q: ['question', 'pertanyaan', 'soal', 'q', 'text', 'teks'],
+  options: ['options', 'opsi', 'pilihan', 'choices'],
+  answer: ['answer', 'jawaban', 'kunci', 'correct', 'correctAnswer', 'correctAnswers', 'kunciJawaban'],
+  explanation: ['explanation', 'pembahasan', 'penjelasan', 'explain'],
+  type: ['type', 'tipe', 'jenis'],
+  statements: ['statements', 'pernyataan'],
+  labels: ['labels', 'label'],
+  passage: ['passage', 'bacaan', 'wacana'],
+  passageId: ['passageId', 'bacaanId', 'wacanaId'],
+};
+
+function pick(obj, keys) {
+  for (const k of keys) {
+    if (obj[k] !== undefined && obj[k] !== null) return obj[k];
+  }
+  return undefined;
+}
+
+function norm(s) {
+  return String(s).toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function short(s, n) {
+  s = String(s).replace(/\s+/g, ' ').trim();
+  n = n || 60;
+  return s.length > n ? s.slice(0, n - 1) + '…' : s;
+}
+
+function parseBool(v) {
+  if (typeof v === 'boolean') return v;
+  if (typeof v !== 'string') return undefined;
+  const s = norm(v).replace(/[.!]$/, '');
+  if (['benar', 'tepat', 'true', 'ya', 'b'].includes(s)) return true;
+  if (['salah', 'tidak tepat', 'false', 'tidak', 's'].includes(s)) return false;
+  return undefined;
+}
+
+// "Benar: ...", "Salah: ...", "Tepat: ...", "Tidak Tepat: ..."  (tanda "-" harus dengan spasi di kedua sisi)
+const LABEL_RE = /^\s*(benar|salah|tepat|tidak\s+tepat|true|false)\s*(?::|\s[-–—]\s)\s*(\S[\s\S]*)$/i;
+
+// Huruf (A, B, ...), teks pilihan persis, atau nomor mulai dari 0 -> indeks pilihan, atau -1.
+function resolveIndex(options, a) {
+  if (typeof a === 'number') return Number.isInteger(a) && a >= 0 && a < options.length ? a : -1;
+  if (typeof a !== 'string') return -1;
+  const s = a.trim();
+  const byText = options.findIndex((o) => norm(o) === norm(s));
+  if (byText >= 0) return byText;
+  if (/^[A-Za-z][.)]?$/.test(s)) {
+    const l = s[0].toUpperCase().charCodeAt(0) - 65;
+    if (l < options.length) return l;
+  }
+  if (/^\d+$/.test(s) && +s < options.length) return +s;
+  return -1;
+}
+
+function normalizeQuestion(raw, n, errors, ctx) {
+  const err = (m) => {
+    errors.push('Soal #' + n + ': ' + m);
+    return null;
+  };
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return err('harus berupa objek { ... }.');
+
+  const text = pick(raw, KEYS.q);
+  if (typeof text !== 'string' || !text.trim()) return err('teks soal ("question") kosong atau tidak ada.');
+  if (text.length > 3000) return err('teks soal terlalu panjang (maks 3000 karakter).');
+
+  const explRaw = pick(raw, KEYS.explanation);
+  const explanation = explRaw == null ? '' : String(explRaw).trim().slice(0, 3000);
+
+  // Bacaan: "passageId" merujuk ke daftar "passages", atau "passage" berisi teks langsung.
+  let passageId;
+  const pidRaw = pick(raw, KEYS.passageId);
+  const inline = pick(raw, KEYS.passage);
+  if (pidRaw !== undefined) {
+    const pid = String(pidRaw);
+    if (!(pid in ctx.passages)) return err('bacaan "' + pid + '" tidak ada di daftar "passages".');
+    passageId = pid;
+  } else if (inline !== undefined) {
+    if (typeof inline !== 'string' || !inline.trim()) return err('"passage" harus berupa teks.');
+    if (inline.length > 20000) return err('teks bacaan terlalu panjang (maks 20000 karakter).');
+    passageId = ctx.addInline(inline.trim());
+  }
+  const finish = (q) => {
+    q.question = text.trim();
+    q.explanation = explanation;
+    if (passageId) q.passageId = passageId;
+    return q;
+  };
+
+  const hint = String(pick(raw, KEYS.type) || '').toLowerCase().replace(/[\s-]+/g, '_');
+  const hintMulti = /select|checkbox|banyak|kompleks|multi(ple)?_answer/.test(hint);
+  const hintSingle = !hintMulti && /choice|pilihan|single/.test(hint);
+  const hintTF = /true_?false|benar_?salah|^tf$|boolean|tepat/.test(hint);
+  const statementsRaw = pick(raw, KEYS.statements);
+  const ans = pick(raw, KEYS.answer);
+  let options = pick(raw, KEYS.options);
+
+  const looksTF =
+    Array.isArray(options) && options.length > 0 && options.every((o) => typeof o === 'string' && LABEL_RE.test(o));
+
+  /* --- Benar / Salah: tiap pernyataan dinilai sendiri --- */
+  if (statementsRaw !== undefined || hintTF || looksTF) {
+    const src = statementsRaw !== undefined ? statementsRaw : options;
+    if (!Array.isArray(src) || src.length < 1) {
+      return err('soal benar/salah butuh "statements", contoh [{ "text": "...", "answer": true }].');
+    }
+    if (src.length > 10) return err('maksimal 10 pernyataan.');
+    let labels = null;
+    const labelsRaw = pick(raw, KEYS.labels);
+    if (labelsRaw !== undefined) {
+      if (Array.isArray(labelsRaw) && labelsRaw.length === 2 && labelsRaw.every((l) => typeof l === 'string' && l.trim())) {
+        labels = labelsRaw.map((l) => l.trim().slice(0, 20));
+      } else {
+        return err('"labels" harus berisi tepat 2 teks, contoh ["Benar", "Salah"].');
+      }
+    }
+    let tepat = false;
+    const sts = [];
+    for (let i = 0; i < src.length; i++) {
+      const s = src[i];
+      let t;
+      let a;
+      if (typeof s === 'string') {
+        const m = s.match(LABEL_RE);
+        if (!m) {
+          return err('pernyataan #' + (i + 1) + ' harus diawali "Benar:" / "Salah:", atau tulis sebagai { "text": "...", "answer": true }.');
+        }
+        a = parseBool(m[1]);
+        t = m[2].trim();
+        if (/^(tepat|tidak\s+tepat)$/i.test(m[1].trim())) tepat = true;
+      } else if (s && typeof s === 'object') {
+        t = pick(s, ['text', 'statement', 'pernyataan', 'question']);
+        if (typeof t !== 'string' || !t.trim()) return err('pernyataan #' + (i + 1) + ' tidak punya "text".');
+        t = t.trim();
+        a = parseBool(pick(s, ['answer', 'jawaban', 'correct', 'value']));
+        if (a === undefined) return err('pernyataan #' + (i + 1) + ' tidak punya "answer" (true/false atau "Benar"/"Salah").');
+      } else {
+        return err('pernyataan #' + (i + 1) + ' tidak valid.');
+      }
+      sts.push({ text: t, answer: a });
+    }
+    const seen = new Map();
+    for (const s of sts) {
+      const k = norm(s.text);
+      if (seen.has(k)) {
+        const conflict = seen.get(k) !== s.answer;
+        return err('pernyataan "' + short(s.text) + '" muncul dua kali' + (conflict ? ' dengan kunci yang bertentangan (Benar dan Salah)' : '') + '.');
+      }
+      seen.set(k, s.answer);
+    }
+    return finish({ type: 'benar_salah', statements: sts, labels: labels || (tepat ? ['Tepat', 'Tidak Tepat'] : ['Benar', 'Salah']) });
+  }
+
+  /* --- Pilihan ganda / pilih banyak --- */
+  if (options !== undefined) {
+    if (options && !Array.isArray(options) && typeof options === 'object') {
+      options = Object.keys(options).sort().map((k) => options[k]); // { "A": "...", "B": "..." }
+    }
+    if (!Array.isArray(options) || options.length < 2) return err('"options" minimal berisi 2 pilihan.');
+    if (options.length > 10) return err('"options" maksimal 10 pilihan.');
+    options = options.map((o) => String(o).trim());
+    if (options.some((o) => !o)) return err('ada pilihan yang kosong.');
+    // Buang awalan "A. " / "B) " kalau semua pilihan punya, karena tampilan sudah memberi huruf sendiri.
+    if (options.every((o) => /^[A-Ja-j][.)]\s+\S/.test(o))) {
+      options = options.map((o) => o.replace(/^[A-Ja-j][.)]\s+/, ''));
+    }
+    if (new Set(options.map(norm)).size !== options.length) return err('ada pilihan yang isinya sama.');
+
+    if (ans === undefined) return err('kunci jawaban ("answer") tidak ada.');
+    const list = Array.isArray(ans) ? ans : [ans];
+    if (!list.length) return err('"answer" kosong.');
+    const idxs = [];
+    for (const a of list) {
+      const i = resolveIndex(options, a);
+      if (i < 0) {
+        return err(
+          'jawaban ' + JSON.stringify(a) + ' tidak cocok dengan pilihan. Pakai huruf (A, B, ...), teks pilihan persis, atau nomor mulai dari 0.'
+        );
+      }
+      if (!idxs.includes(i)) idxs.push(i);
+    }
+    idxs.sort((x, y) => x - y);
+    if (hintMulti || (idxs.length > 1 && !hintSingle)) return finish({ type: 'banyak', options, answer: idxs });
+    if (idxs.length > 1) return err('tipe pilihan ganda hanya boleh punya satu jawaban benar. Untuk banyak jawaban pakai "type": "multiple_select".');
+    return finish({ type: 'pilihan', options, answer: idxs[0] });
+  }
+
+  /* --- Isian singkat (tanpa options) --- */
+  if (ans === undefined) return err('kunci jawaban ("answer") tidak ada.');
+  const list = Array.isArray(ans) ? ans : [ans];
+  const answers = list
+    .filter((a) => typeof a === 'string' || typeof a === 'number')
+    .map((a) => String(a).trim())
+    .filter(Boolean);
+  if (!answers.length) return err('"answer" kosong.');
+  return finish({ type: 'isian', answer: answers });
+}
+
+function parseTemplateInput(text) {
+  if (typeof text !== 'string' || !text.trim()) {
+    throw new ValidationError(['JSON kosong. Tempel JSON soal dulu.']);
+  }
+  let src = text.replace(/^﻿/, '').trim();
+  // Kalau di-copy dari chat AI lengkap dengan ```json ... ```, bungkusnya dibuang otomatis.
+  const fence = src.match(/^```[\w-]*\s*\n([\s\S]*?)\n?\s*```$/);
+  if (fence) src = fence[1].trim();
+
+  let data;
+  try {
+    data = JSON.parse(src);
+  } catch (e) {
+    throw new ValidationError(['JSON tidak valid: ' + e.message]);
+  }
+
+  let title;
+  let list;
+  let description;
+  let duration;
+  let passagesRaw;
+  if (Array.isArray(data)) {
+    list = data;
+  } else if (data && typeof data === 'object') {
+    title = pick(data, KEYS.title);
+    list = pick(data, KEYS.questions);
+    description = pick(data, KEYS.description);
+    duration = pick(data, KEYS.duration);
+    passagesRaw = pick(data, KEYS.passages);
+  }
+  if (!Array.isArray(list)) {
+    throw new ValidationError(['Format harus berupa array soal, atau objek yang punya "title" dan "questions".']);
+  }
+  if (list.length === 0) throw new ValidationError(['Daftar soal kosong.']);
+  if (list.length > 500) throw new ValidationError(['Maksimal 500 soal per template.']);
+
+  const errors = [];
+
+  // Daftar bacaan bersama
+  const ctx = {
+    passages: Object.create(null),
+    byText: new Map(),
+    counter: 0,
+    addInline(t) {
+      if (this.byText.has(t)) return this.byText.get(t);
+      let id;
+      do id = 'b' + ++this.counter;
+      while (id in this.passages);
+      this.passages[id] = t;
+      this.byText.set(t, id);
+      return id;
+    },
+  };
+  if (passagesRaw !== undefined) {
+    let entries;
+    if (Array.isArray(passagesRaw)) {
+      entries = passagesRaw.map((p, i) =>
+        p && typeof p === 'object' ? [String(p.id !== undefined ? p.id : 'p' + (i + 1)), p.text !== undefined ? p.text : p.teks] : ['p' + (i + 1), p]
+      );
+    } else if (passagesRaw && typeof passagesRaw === 'object') {
+      entries = Object.entries(passagesRaw);
+    } else {
+      throw new ValidationError(['"passages" harus berupa objek, contoh { "p1": "teks bacaan..." }.']);
+    }
+    for (const [id, v] of entries) {
+      if (typeof v !== 'string' || !v.trim()) errors.push('Bacaan "' + id + '": teks kosong.');
+      else if (v.length > 20000) errors.push('Bacaan "' + id + '": terlalu panjang (maks 20000 karakter).');
+      else {
+        ctx.passages[id] = v.trim();
+        ctx.byText.set(v.trim(), id);
+      }
+    }
+  }
+
+  let durationMinutes;
+  if (duration !== undefined) {
+    const d = Number(duration);
+    if (!Number.isFinite(d) || d < 1 || d > 600) errors.push('"durationMinutes" harus angka antara 1 dan 600.');
+    else durationMinutes = Math.round(d);
+  }
+
+  const questions = [];
+  list.forEach((raw, i) => {
+    const q = normalizeQuestion(raw, i + 1, errors, ctx);
+    if (q) questions.push(q);
+  });
+  if (errors.length) {
+    const shown = errors.slice(0, 15);
+    if (errors.length > 15) shown.push('...dan ' + (errors.length - 15) + ' masalah lain.');
+    throw new ValidationError(shown);
+  }
+  questions.forEach((q, i) => {
+    q.id = 'q' + (i + 1);
+  });
+
+  const used = {};
+  for (const q of questions) {
+    if (q.passageId) used[q.passageId] = ctx.passages[q.passageId];
+  }
+  return {
+    title: typeof title === 'string' && title.trim() ? title.trim().slice(0, 120) : '',
+    description: typeof description === 'string' ? description.trim().slice(0, 500) : '',
+    durationMinutes,
+    passages: used,
+    questions,
+  };
+}
+
+function createTemplate(db, parsed) {
+  const t = {
+    id: newId(db),
+    title: parsed.title || 'Template tanpa judul #' + (db.templates.length + 1),
+    description: parsed.description || '',
+    createdAt: new Date().toISOString(),
+    nextQ: parsed.questions.length + 1, // penghitung id soal, supaya id tidak dipakai ulang setelah ada yang dihapus
+    passages: parsed.passages || {},
+    questions: parsed.questions,
+    attempts: [],
+  };
+  if (parsed.durationMinutes) t.durationMinutes = parsed.durationMinutes;
+  db.templates.push(t);
+  return t;
+}
+
+// Setelah soal dihapus, buang teks bacaan yang tidak dipakai lagi.
+function pruneOrphanPassages(t) {
+  if (!t.passages) return;
+  const used = new Set(t.questions.map((q) => q.passageId).filter(Boolean));
+  for (const id of Object.keys(t.passages)) {
+    if (!used.has(id)) delete t.passages[id];
+  }
+}
+
+/* ---------- Penilaian ---------- */
+
+// Satu soal dianggap benar hanya kalau jawabannya benar semua (pilih banyak: himpunan persis sama;
+// benar/salah: semua pernyataan tepat).
+function grade(t, answers) {
+  answers = answers && typeof answers === 'object' ? answers : {};
+  let correct = 0;
+  const review = [];
+  for (const q of t.questions) {
+    const given = answers[q.id];
+    const base = { id: q.id, type: q.type, question: q.question, explanation: q.explanation, passageId: q.passageId };
+    let ok = false;
+
+    if (q.type === 'pilihan') {
+      let i = -1;
+      if (typeof given === 'number') i = given;
+      else if (typeof given === 'string' && /^\d+$/.test(given)) i = +given;
+      const valid = Number.isInteger(i) && i >= 0 && i < q.options.length;
+      ok = valid && i === q.answer;
+      Object.assign(base, { options: q.options, given: valid ? i : null, correctIndex: q.answer });
+    } else if (q.type === 'banyak') {
+      const arr = Array.isArray(given) ? given : [];
+      const set = [
+        ...new Set(
+          arr
+            .filter((v) => typeof v === 'number' || (typeof v === 'string' && /^\d+$/.test(v)))
+            .map(Number)
+            .filter((v) => Number.isInteger(v) && v >= 0 && v < q.options.length)
+        ),
+      ].sort((a, b) => a - b);
+      ok = set.length === q.answer.length && set.every((v, k) => v === q.answer[k]);
+      Object.assign(base, { options: q.options, given: set, correctIndexes: q.answer });
+    } else if (q.type === 'benar_salah') {
+      const arr = Array.isArray(given) ? given : [];
+      const sts = q.statements.map((s, k) => {
+        const g = typeof arr[k] === 'boolean' ? arr[k] : null;
+        return { text: s.text, given: g, answer: s.answer, correct: g === s.answer };
+      });
+      ok = sts.every((s) => s.correct);
+      Object.assign(base, { statements: sts, labels: q.labels });
+    } else {
+      const g = typeof given === 'string' ? given.trim() : '';
+      ok = g !== '' && q.answer.some((a) => norm(a) === norm(g));
+      Object.assign(base, { givenText: g || null, correctAnswers: q.answer });
+    }
+
+    if (ok) correct++;
+    base.correct = ok;
+    review.push(base);
+  }
+  const total = t.questions.length;
+  const score = total ? Math.round((correct / total) * 1000) / 10 : 0;
+  return { correct, total, score, review };
+}
+
+/* ---------- Statistik & papan skor ---------- */
+
+function stats(t) {
+  const a = t.attempts || [];
+  if (!a.length) {
+    return { attempts: 0, players: 0, highest: null, lowest: null, average: null, best: null };
+  }
+  let best = a[0];
+  let lowest = a[0].score;
+  let sum = 0;
+  for (const x of a) {
+    if (x.score > best.score) best = x; // seri: yang paling awal tetap jadi yang terbaik
+    if (x.score < lowest) lowest = x.score;
+    sum += x.score;
+  }
+  return {
+    attempts: a.length,
+    players: new Set(a.map((x) => norm(x.name))).size,
+    highest: best.score,
+    lowest,
+    average: Math.round((sum / a.length) * 10) / 10,
+    best: { name: best.name, score: best.score, at: best.at },
+  };
+}
+
+// Satu baris per pemain (skor terbaiknya), diurutkan dari yang tertinggi.
+function leaderboard(t) {
+  const byName = new Map();
+  for (const x of t.attempts || []) {
+    const key = norm(x.name);
+    const cur = byName.get(key);
+    if (!cur) {
+      byName.set(key, { name: x.name, score: x.score, correct: x.correct, total: x.total, at: x.at, attempts: 1 });
+    } else {
+      cur.attempts++;
+      if (x.score > cur.score) {
+        Object.assign(cur, { name: x.name, score: x.score, correct: x.correct, total: x.total, at: x.at });
+      }
+    }
+  }
+  const rows = [...byName.values()].sort((a, b) => b.score - a.score || (a.at < b.at ? -1 : 1));
+  rows.forEach((r, i) => {
+    r.rank = i + 1;
+  });
+  return rows;
+}
+
+
+// ---- Pengganti server untuk versi satu file HTML ----
+// Dipasang di dalam IIFE yang sama dengan parser (lib.js), jadi parseTemplateInput, grade,
+// stats, dll. langsung bisa dipakai. Data disimpan di localStorage browser.
+
+var STORE_KEY = 'soalmaker.db.v1';
+var memDb = null;
+
+window.SOAL_LOCAL = true;
+window.SOAL_PERSISTENT = true;
+try {
+  localStorage.setItem('__soalmaker_test', '1');
+  localStorage.removeItem('__soalmaker_test');
+} catch (e) {
+  window.SOAL_PERSISTENT = false;
+}
+
+function dbLoad() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const db = JSON.parse(raw);
+      if (db && Array.isArray(db.templates)) return db;
+    }
+  } catch (e) {
+    window.SOAL_PERSISTENT = false;
+  }
+  if (!window.SOAL_PERSISTENT && memDb) return memDb;
+  return { templates: [] };
+}
+
+function dbSave(db) {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(db));
+    memDb = null;
+  } catch (e) {
+    if (e && (e.name === 'QuotaExceededError' || e.code === 22)) {
+      throw new Error('Penyimpanan browser penuh. Ekspor data sebagai cadangan, lalu hapus template yang tidak dipakai.');
+    }
+    window.SOAL_PERSISTENT = false;
+    memDb = db; // browser memblokir penyimpanan: simpan sementara di memori saja
+  }
+}
+
+function newId(db) {
+  for (;;) {
+    const b = new Uint8Array(3);
+    crypto.getRandomValues(b);
+    const hex = Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+    const id = 'abcdef'[b[0] % 6] + hex.slice(0, 5);
+    if (!db.templates.some((t) => t.id === id)) return id;
+  }
+}
+
+/* ---------- Tampilan data (sama seperti server.js) ---------- */
+
+function publicView(t) {
+  const used = new Set();
+  const questions = t.questions.map((q) => {
+    if (q.passageId) used.add(q.passageId);
+    return {
+      id: q.id,
+      type: q.type,
+      question: q.question,
+      passageId: q.passageId,
+      options: q.type === 'pilihan' || q.type === 'banyak' ? q.options : undefined,
+      statements: q.type === 'benar_salah' ? q.statements.map((s) => s.text) : undefined,
+      labels: q.type === 'benar_salah' ? q.labels : undefined,
+    };
+  });
+  const passages = {};
+  used.forEach((id) => {
+    if (t.passages && t.passages[id]) passages[id] = t.passages[id];
+  });
+  return { id: t.id, title: t.title, description: t.description || '', durationMinutes: t.durationMinutes || null, passages, questions };
+}
+
+function summary(t) {
+  return {
+    id: t.id,
+    title: t.title,
+    description: t.description || '',
+    durationMinutes: t.durationMinutes || null,
+    createdAt: t.createdAt,
+    questionCount: t.questions.length,
+    stats: stats(t),
+  };
+}
+
+function toApiError(e) {
+  if (e instanceof ValidationError) {
+    const many = e.details.length > 1;
+    const err = new Error(many ? 'Ada beberapa masalah di JSON:' : e.details[0]);
+    if (many) err.details = e.details;
+    return err;
+  }
+  return e;
+}
+
+/* ---------- "API" lokal: dipanggil app.js lewat window.SOAL_LOCAL_API ---------- */
+
+window.SOAL_LOCAL_API = async function (path, opts) {
+  const method = (opts && opts.method) || 'GET';
+  const body = (opts && opts.body) || {};
+  const parts = path.split('?')[0].split('/').filter(Boolean).map(decodeURIComponent);
+  if (parts[0] !== 'templates') throw new Error('Endpoint tidak ditemukan.');
+
+  if (parts.length === 1) {
+    if (method === 'GET') return dbLoad().templates.map(summary).reverse(); // terbaru di atas
+    if (method === 'POST') {
+      let parsed;
+      try {
+        parsed = parseTemplateInput(body.json);
+      } catch (e) {
+        throw toApiError(e);
+      }
+      const db = dbLoad();
+      const t = createTemplate(db, parsed);
+      dbSave(db);
+      return { id: t.id, title: t.title, questionCount: t.questions.length };
+    }
+    throw new Error('Method tidak diizinkan.');
+  }
+
+  const db = dbLoad();
+  const t = db.templates.find((x) => x.id === parts[1]);
+  if (!t) throw new Error('Template tidak ditemukan (mungkin sudah dihapus).');
+
+  if (parts.length === 2) {
+    if (method === 'GET') return publicView(t);
+    if (method === 'DELETE') {
+      db.templates = db.templates.filter((x) => x.id !== t.id);
+      dbSave(db);
+      return { ok: true };
+    }
+    throw new Error('Method tidak diizinkan.');
+  }
+
+  if (parts[2] === 'submit' && method === 'POST') {
+    if (!t.questions.length) throw new Error('Template ini sudah tidak punya soal.');
+    const name = typeof body.name === 'string' ? body.name.trim().replace(/\s+/g, ' ').slice(0, 40) : '';
+    if (!name) throw new Error('Nama wajib diisi.');
+    const result = grade(t, body.answers);
+    const before = stats(t);
+    t.attempts = t.attempts || [];
+    t.attempts.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      name,
+      correct: result.correct,
+      total: result.total,
+      score: result.score,
+      at: new Date().toISOString(),
+    });
+    dbSave(db);
+    const board = leaderboard(t);
+    const mine = board.find((r) => norm(r.name) === norm(name));
+    return Object.assign({}, result, {
+      name,
+      stats: stats(t),
+      isNewHighest: before.highest === null || result.score > before.highest,
+      rank: mine ? mine.rank : null,
+      players: board.length,
+    });
+  }
+
+  if (parts[2] === 'scores' && method === 'GET') {
+    return { id: t.id, title: t.title, questionCount: t.questions.length, stats: stats(t), board: leaderboard(t).slice(0, 50) };
+  }
+
+  throw new Error('Endpoint tidak ditemukan.');
+};
+
+/* ---------- Ekspor / impor cadangan ---------- */
+
+window.SOAL_EXPORT = function () {
+  return JSON.stringify({ app: 'soal-maker', version: 1, exportedAt: new Date().toISOString(), templates: dbLoad().templates }, null, 2);
+};
+
+window.SOAL_IMPORT = function (text) {
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    throw new Error('File bukan JSON yang valid.');
+  }
+  const list = data && Array.isArray(data.templates) ? data.templates : null;
+  const types = ['pilihan', 'banyak', 'benar_salah', 'isian'];
+  const okT = (t) =>
+    t && typeof t === 'object' && typeof t.title === 'string' && Array.isArray(t.questions) &&
+    t.questions.every((q) => q && typeof q === 'object' && types.includes(q.type) && typeof q.id === 'string' && typeof q.question === 'string');
+  if (!list || !list.length || !list.every(okT)) throw new Error('File ini bukan cadangan Soal Maker yang valid.');
+  const db = dbLoad();
+  list.forEach((t) => {
+    const copy = Object.assign({}, t, { attempts: Array.isArray(t.attempts) ? t.attempts : [], passages: t.passages && typeof t.passages === 'object' ? t.passages : {} });
+    if (typeof copy.id !== 'string' || db.templates.some((x) => x.id === copy.id)) copy.id = newId(db);
+    db.templates.push(copy);
+  });
+  dbSave(db);
+  return list.length;
+};
+
+/* ---------- Terminal di dalam halaman (padanan cli.js) ---------- */
+
+function tPad(s, n) {
+  s = String(s);
+  return s.length >= n ? s.slice(0, n - 1) + '…' : s + ' '.repeat(n - s.length);
+}
+function tScore(n) {
+  return n == null ? '-' : Number.isInteger(n) ? String(n) : n.toFixed(1);
+}
+function tDate(iso) {
+  const d = new Date(iso);
+  return isNaN(d) ? '' : d.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+}
+function tLine(s, n) {
+  s = String(s).replace(/\s+/g, ' ');
+  return s.length > n ? s.slice(0, n - 1) + '…' : s;
+}
+
+function tFind(db, ref) {
+  if (!ref) throw new Error('Sebutkan template-nya (nomor atau ID). Lihat daftar dengan: list');
+  let t = db.templates.find((x) => x.id === ref);
+  if (t) return t;
+  const byPrefix = db.templates.filter((x) => x.id.startsWith(ref.toLowerCase()));
+  if (byPrefix.length === 1) return byPrefix[0];
+  if (byPrefix.length > 1) throw new Error('Awalan "' + ref + '" cocok dengan lebih dari satu template. Tulis ID lebih lengkap.');
+  if (/^\d+$/.test(ref)) {
+    const n = Number(ref);
+    if (n >= 1 && n <= db.templates.length) return db.templates[n - 1];
+  }
+  throw new Error('Template "' + ref + '" tidak ditemukan. Lihat daftar dengan: list');
+}
+
+// "3"  "1,3,5"  "2-4"  "1,3-5"  -> [1,3,4,5]
+function tNumbers(spec, max) {
+  if (!spec) throw new Error('Sebutkan nomor soal yang mau dihapus, contoh: 3  atau  1,4  atau  2-5');
+  const out = new Set();
+  for (const part of String(spec).split(',')) {
+    const p = part.trim();
+    let m;
+    if ((m = p.match(/^(\d+)$/))) out.add(Number(m[1]));
+    else if ((m = p.match(/^(\d+)-(\d+)$/))) {
+      const a = Number(m[1]);
+      const b = Number(m[2]);
+      if (a > b) throw new Error('Rentang "' + p + '" terbalik.');
+      for (let i = a; i <= b; i++) out.add(i);
+    } else throw new Error('Format nomor tidak dikenal: "' + p + '". Contoh: 3  atau  1,4  atau  2-5');
+  }
+  const nums = Array.from(out).sort((a, b) => a - b);
+  const bad = nums.filter((n) => n < 1 || n > max);
+  if (bad.length) throw new Error('Nomor di luar jangkauan (template ini punya ' + max + ' soal): ' + bad.join(', '));
+  return nums;
+}
+
+var HELP = [
+  'Perintah:',
+  '  list                              Daftar template (+ skor tertinggi)',
+  '  show <template>                   Lihat semua soal bernomor + kunci jawaban',
+  '  delete-question <template> <no>   Hapus soal. <no>: 3  |  1,4  |  2-5  |  1,3-5',
+  '  delete-template <template> -y     Hapus satu template beserta semua skornya',
+  '  scores <template>                 Statistik & papan skor template',
+  '  clear-scores <template> -y        Reset semua skor template (soal tetap ada)',
+  '  clear                             Bersihkan layar terminal',
+  '',
+  '<template> = nomor urut di "list", ID, atau awalan ID.',
+  'Alias: hapus-soal, hapus-template, skor, hapus-skor, daftar, lihat.',
+  'Perintah yang menghapus template/skor butuh -y sebagai konfirmasi.',
+].join('\n');
+
+window.SOAL_TERMINAL = function (line) {
+  const tokens = line.split(/\s+/).filter(Boolean);
+  const yes = tokens.some((a) => a === '-y' || a === '--yes');
+  const rest = tokens.filter((a) => a !== '-y' && a !== '--yes');
+  const cmd = (rest[0] || 'help').toLowerCase();
+  const db = dbLoad();
+  const out = [];
+
+  switch (cmd) {
+    case 'help':
+    case '-h':
+    case '--help':
+      return HELP;
+
+    case 'list':
+    case 'ls':
+    case 'daftar': {
+      if (!db.templates.length) return 'Belum ada template. Buat dulu dengan menempel JSON soal di atas.';
+      out.push(tPad('No', 4) + tPad('ID', 8) + tPad('Judul', 30) + tPad('Soal', 6) + tPad('Tertinggi', 11) + tPad('Rata2', 8) + 'Main');
+      db.templates.forEach((t, i) => {
+        const s = stats(t);
+        out.push(tPad(i + 1, 4) + tPad(t.id, 8) + tPad(t.title, 30) + tPad(t.questions.length, 6) + tPad(tScore(s.highest), 11) + tPad(tScore(s.average), 8) + s.attempts);
+      });
+      return out.join('\n');
+    }
+
+    case 'show':
+    case 'lihat': {
+      const t = tFind(db, rest[1]);
+      out.push(t.title + '  (ID ' + t.id + ', ' + t.questions.length + ' soal' + (t.durationMinutes ? ', ' + t.durationMinutes + ' menit' : '') + ')', '');
+      if (!t.questions.length) out.push('(tidak ada soal)');
+      const seen = new Map();
+      t.questions.forEach((q, i) => {
+        if (q.passageId && t.passages && t.passages[q.passageId]) {
+          if (!seen.has(q.passageId)) {
+            seen.set(q.passageId, i + 1);
+            out.push('   [Bacaan] ' + tLine(t.passages[q.passageId], 100));
+          } else out.push('   [Bacaan sama dengan soal ' + seen.get(q.passageId) + ']');
+        }
+        out.push((i + 1) + '. ' + tLine(q.question, 160));
+        if (q.type === 'pilihan' || q.type === 'banyak') {
+          const keys = q.type === 'pilihan' ? [q.answer] : q.answer;
+          if (q.type === 'banyak') out.push('   (pilih semua yang benar)');
+          q.options.forEach((o, j) => out.push('   ' + (keys.includes(j) ? '✓ ' : '  ') + String.fromCharCode(65 + j) + '. ' + tLine(o, 100)));
+        } else if (q.type === 'benar_salah') {
+          q.statements.forEach((s, j) => out.push('   ' + (j + 1) + '. ' + tLine(s.text, 100) + '  ✓ ' + (s.answer ? q.labels[0] : q.labels[1])));
+        } else out.push('   ✓ Isian: ' + q.answer.join('  /  '));
+      });
+      return out.join('\n');
+    }
+
+    case 'delete-question':
+    case 'hapus-soal':
+    case 'dq': {
+      const t = tFind(db, rest[1]);
+      const nums = tNumbers(rest.slice(2).join(','), t.questions.length);
+      const removed = [];
+      for (const n of nums.slice().reverse()) removed.unshift({ n, q: t.questions.splice(n - 1, 1)[0] });
+      pruneOrphanPassages(t);
+      dbSave(db);
+      out.push('Dihapus ' + removed.length + ' soal dari "' + t.title + '":');
+      removed.forEach((r) => out.push('  #' + r.n + ' ' + tLine(r.q.question, 80)));
+      out.push('Sisa ' + t.questions.length + ' soal. Nomor soal sekarang tersusun ulang (cek dengan: show ' + t.id + ').');
+      if (!t.questions.length) out.push('Template ini sudah kosong, tidak bisa dikerjakan lagi. Hapus dengan: delete-template ' + t.id + ' -y');
+      else if ((t.attempts || []).length) out.push('Catatan: skor lama tetap tersimpan dengan jumlah soal saat itu. Reset dengan: clear-scores ' + t.id + ' -y');
+      return out.join('\n');
+    }
+
+    case 'delete-template':
+    case 'hapus-template':
+    case 'dt': {
+      const t = tFind(db, rest[1]);
+      if (!yes) return 'Hapus template "' + t.title + '" (' + t.questions.length + ' soal, ' + (t.attempts || []).length + ' skor)?\nUlangi dengan -y untuk melanjutkan:  delete-template ' + t.id + ' -y';
+      db.templates = db.templates.filter((x) => x.id !== t.id);
+      dbSave(db);
+      return 'Template "' + t.title + '" dihapus.';
+    }
+
+    case 'scores':
+    case 'skor': {
+      const t = tFind(db, rest[1]);
+      const s = stats(t);
+      out.push(t.title + '  (ID ' + t.id + ', ' + t.questions.length + ' soal)', '');
+      if (!s.attempts) return out.concat('Belum ada yang mengerjakan.').join('\n');
+      out.push('Skor tertinggi : ' + tScore(s.highest) + '  oleh ' + s.best.name + ' (' + tDate(s.best.at) + ')');
+      out.push('Skor terendah  : ' + tScore(s.lowest));
+      out.push('Rata-rata      : ' + tScore(s.average));
+      out.push('Percobaan      : ' + s.attempts + ' oleh ' + s.players + ' pemain', '');
+      out.push(tPad('#', 4) + tPad('Nama', 22) + tPad('Skor', 8) + tPad('Benar', 10) + tPad('Main', 6) + 'Waktu');
+      leaderboard(t).slice(0, 20).forEach((r) => out.push(tPad(r.rank, 4) + tPad(r.name, 22) + tPad(tScore(r.score), 8) + tPad(r.correct + '/' + r.total, 10) + tPad(r.attempts, 6) + tDate(r.at)));
+      return out.join('\n');
+    }
+
+    case 'clear-scores':
+    case 'hapus-skor': {
+      const t = tFind(db, rest[1]);
+      const n = (t.attempts || []).length;
+      if (!n) return 'Template ini belum punya skor.';
+      if (!yes) return 'Hapus ' + n + ' skor dari "' + t.title + '"?\nUlangi dengan -y untuk melanjutkan:  clear-scores ' + t.id + ' -y';
+      t.attempts = [];
+      dbSave(db);
+      return n + ' skor dihapus. Soal tetap ada.';
+    }
+
+    default:
+      return 'Perintah tidak dikenal: ' + cmd + '\nKetik "help" untuk daftar perintah.';
+  }
+};
+
+})();
+  </script>
+  <script>
+'use strict';
+
+const app = document.getElementById('app');
+let quizTimer = null;
+
+function stopTimer() {
+  if (quizTimer) {
+    clearInterval(quizTimer);
+    quizTimer = null;
+  }
+}
+
+const EXAMPLE = {
+  title: 'Kuis Contoh: Semua Jenis Soal',
+  description: 'Contoh pilihan ganda, pilih banyak, benar/salah, isian, dan soal dengan bacaan.',
+  durationMinutes: 10,
+  passages: {
+    p1: 'Sampah plastik membutuhkan ratusan tahun untuk terurai.\n\nKarena itu, banyak sekolah mulai mengurangi plastik sekali pakai dan menyediakan tempat sampah terpilah.',
+  },
+  questions: [
+    {
+      type: 'multiple_choice',
+      question: 'Hasil dari 7 × 8 adalah ...',
+      options: ['54', '56', '58', '64'],
+      answer: 'B',
+      explanation: '7 × 8 = 56.',
+    },
+    {
+      type: 'multiple_select',
+      question: 'Manakah yang termasuk bilangan prima? (Pilih semua jawaban benar)',
+      options: ['2', '4', '5', '9'],
+      answer: ['A', 'C'],
+      explanation: '2 dan 5 hanya habis dibagi 1 dan dirinya sendiri.',
+    },
+    {
+      type: 'true_false',
+      passageId: 'p1',
+      question: 'Berdasarkan bacaan, tentukan benar atau salah tiap pernyataan:',
+      statements: [
+        { text: 'Sampah plastik cepat terurai.', answer: false },
+        { text: 'Sekolah mulai mengurangi plastik sekali pakai.', answer: true },
+      ],
+      explanation: 'Plastik butuh ratusan tahun untuk terurai.',
+    },
+    {
+      type: 'multiple_choice',
+      passageId: 'p1',
+      question: 'Gagasan utama paragraf kedua adalah ...',
+      options: ['Plastik sulit terurai', 'Sekolah mengurangi plastik sekali pakai', 'Harga plastik naik'],
+      answer: 1,
+      explanation: 'Paragraf kedua membahas langkah sekolah.',
+    },
+    {
+      question: 'Lambang kimia air adalah ...',
+      answer: ['H2O', 'H₂O'],
+    },
+  ],
+};
+
+/* ---------- Helper ---------- */
+
+// Membuat elemen DOM tanpa innerHTML, jadi teks soal apa pun aman ditampilkan.
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (k === 'value' || k === 'checked' || k === 'disabled') el[k] = v;
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const kid of kids.flat(Infinity)) {
+    if (kid == null || kid === false) continue;
+    el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+
+async function api(path, opts) {
+  opts = opts || {};
+  if (window.SOAL_LOCAL_API) return window.SOAL_LOCAL_API(path, opts); // versi satu file HTML
+  const init = { method: opts.method || 'GET', headers: {} };
+  if (opts.body !== undefined) {
+    init.headers['Content-Type'] = 'application/json';
+    init.body = JSON.stringify(opts.body);
+  }
+  let res;
+  try {
+    res = await fetch('/api' + path, init);
+  } catch (e) {
+    throw new Error('Tidak bisa terhubung ke server. Pastikan "node server.js" masih jalan.');
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.error || 'Terjadi kesalahan (' + res.status + ').');
+    err.details = data.details;
+    throw err;
+  }
+  return data;
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  return d.toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function fmtScore(n) {
+  if (n == null) return '—';
+  return Number.isInteger(n) ? String(n) : n.toFixed(1);
+}
+
+function toast(text) {
+  const t = h('div', { class: 'toast', role: 'status' }, text);
+  document.body.append(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+function show(...nodes) {
+  app.replaceChildren(...nodes.flat().filter((n) => n != null && n !== false));
+}
+
+function renderError(message) {
+  stopTimer();
+  show(
+    h('a', { class: 'back', href: '#/' }, '← Semua template'),
+    h('div', { class: 'card' }, h('h2', {}, 'Ups'), h('p', {}, message), h('a', { class: 'btn btn-primary', href: '#/' }, 'Kembali ke beranda'))
+  );
+}
+
+function stat(label, value, sub, hi) {
+  return h('div', { class: 'stat' + (hi ? ' hi' : '') }, h('div', { class: 'v' }, value), h('div', { class: 'l' }, label), sub ? h('div', { class: 's' }, sub) : null);
+}
+
+/* ---------- Bacaan (teks yang dipakai satu atau beberapa soal) ---------- */
+
+function passageIndex(t) {
+  const m = new Map();
+  t.questions.forEach((q, i) => {
+    if (q.passageId && t.passages && t.passages[q.passageId] && !m.has(q.passageId)) m.set(q.passageId, i);
+  });
+  return m;
+}
+
+function passageNode(t, idx, q, i, review) {
+  const text = q.passageId && t.passages ? t.passages[q.passageId] : null;
+  if (!text) return null;
+  const first = idx.get(q.passageId);
+  if (!review && first === i) {
+    return h('div', { class: 'passage' }, h('div', { class: 'plabel' }, 'Bacaan'), h('div', { class: 'ptext' }, text));
+  }
+  return h(
+    'details',
+    { class: 'passage' },
+    h('summary', {}, first === i ? 'Lihat teks bacaan' : 'Lihat teks bacaan (soal ' + (first + 1) + ')'),
+    h('div', { class: 'ptext' }, text)
+  );
+}
+
+/* ---------- Terminal & cadangan (hanya di versi satu file HTML) ---------- */
+
+function terminalSection(reload) {
+  const out = h('pre', { class: 'term-out', 'aria-live': 'polite' }, 'Ketik "help" untuk daftar perintah.\n');
+  const inp = h('input', { class: 'term-in', type: 'text', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Perintah terminal', placeholder: 'contoh: list' });
+  const hist = [];
+  let hi = 0;
+
+  function run() {
+    const line = inp.value.trim();
+    if (!line) return;
+    hist.push(line);
+    hi = hist.length;
+    inp.value = '';
+    if (line === 'clear' || line === 'cls') {
+      out.textContent = '';
+      return;
+    }
+    let res;
+    try {
+      res = window.SOAL_TERMINAL(line);
+    } catch (e) {
+      res = 'Error: ' + e.message;
+    }
+    out.textContent += '$ ' + line + '\n' + res + '\n\n';
+    out.scrollTop = out.scrollHeight;
+    reload();
+  }
+
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      run();
+    } else if (e.key === 'ArrowUp' && hist.length) {
+      e.preventDefault();
+      hi = Math.max(0, hi - 1);
+      inp.value = hist[hi];
+    } else if (e.key === 'ArrowDown' && hist.length) {
+      e.preventDefault();
+      hi = Math.min(hist.length, hi + 1);
+      inp.value = hist[hi] || '';
+    }
+  });
+
+  return h(
+    'section',
+    { class: 'section' },
+    h('h2', {}, 'Terminal'),
+    h(
+      'div',
+      { class: 'card term' },
+      h('p', { class: 'muted small', style: 'margin:0 0 10px' }, 'Kelola soal dengan perintah, misalnya ', h('code', {}, 'list'), ', ', h('code', {}, 'show 1'), ', ', h('code', {}, 'hapus-soal 1 3'), '. Panah atas/bawah memanggil perintah sebelumnya.'),
+      out,
+      h('div', { class: 'term-line' }, h('span', { class: 'prompt', 'aria-hidden': 'true' }, '$'), inp)
+    )
+  );
+}
+
+function dataSection(reload) {
+  const file = h('input', {
+    type: 'file',
+    accept: 'application/json,.json',
+    style: 'display:none',
+    onchange: async (e) => {
+      const f = e.target.files[0];
+      e.target.value = '';
+      if (!f) return;
+      try {
+        const n = window.SOAL_IMPORT(await f.text());
+        toast(n + ' template diimpor.');
+        reload();
+      } catch (err) {
+        toast(err.message);
+      }
+    },
+  });
+
+  function download() {
+    const blob = new Blob([window.SOAL_EXPORT()], { type: 'application/json' });
+    const a = h('a', { href: URL.createObjectURL(blob), download: 'soal-maker-data.json' });
+    document.body.append(a);
+    a.click();
+    a.remove();
+  }
+
+  return h(
+    'section',
+    { class: 'section' },
+    h('h2', {}, 'Cadangan data'),
+    h(
+      'div',
+      { class: 'card' },
+      h('p', { class: 'muted', style: 'margin:0 0 12px' }, 'Semua soal dan skor tersimpan di browser ini saja. Ekspor secara berkala sebagai cadangan, atau untuk pindah ke perangkat lain.'),
+      window.SOAL_PERSISTENT === false ? h('div', { class: 'msg err', style: 'margin:0 0 12px' }, 'Browser ini memblokir penyimpanan, jadi data hilang kalau halaman ditutup.') : null,
+      h('div', { class: 'row' }, h('button', { class: 'btn', type: 'button', onclick: download }, 'Ekspor data'), h('button', { class: 'btn', type: 'button', onclick: () => file.click() }, 'Impor data'), file)
+    )
+  );
+}
+
+/* ---------- Beranda: tempel JSON + daftar template ---------- */
+
+function renderHome() {
+  stopTimer();
+  document.title = 'Soal Maker';
+
+  const ta = h('textarea', {
+    id: 'json',
+    rows: '10',
+    spellcheck: 'false',
+    'aria-label': 'JSON soal',
+    placeholder: 'Tempel JSON soal di sini…',
+  });
+  const msg = h('div', { class: 'msg', role: 'status', 'aria-live': 'polite' });
+  const makeBtn = h('button', { class: 'btn btn-primary', type: 'button', onclick: create }, 'Buat template');
+  const list = h('div', { class: 'grid' }, h('p', { class: 'muted' }, 'Memuat…'));
+
+  async function create() {
+    msg.className = 'msg';
+    msg.replaceChildren();
+    makeBtn.disabled = true;
+    try {
+      const r = await api('/templates', { method: 'POST', body: { json: ta.value } });
+      ta.value = '';
+      msg.className = 'msg ok';
+      msg.replaceChildren(
+        h('span', {}, 'Template “' + r.title + '” dibuat (' + r.questionCount + ' soal).'),
+        h('a', { class: 'btn btn-primary btn-small', href: '#/t/' + r.id }, 'Kerjakan sekarang')
+      );
+      loadList();
+    } catch (e) {
+      msg.className = 'msg err';
+      const parts = [h('strong', {}, e.message)];
+      if (e.details && e.details.length) parts.push(h('ul', {}, e.details.map((d) => h('li', {}, d))));
+      msg.replaceChildren(...parts);
+    } finally {
+      makeBtn.disabled = false;
+    }
+  }
+
+  async function paste() {
+    try {
+      ta.value = await navigator.clipboard.readText();
+      ta.focus();
+    } catch (e) {
+      toast('Browser tidak mengizinkan baca clipboard. Tempel manual dengan Ctrl+V.');
+    }
+  }
+
+  async function loadList() {
+    try {
+      const items = await api('/templates');
+      if (!items.length) {
+        list.replaceChildren(h('div', { class: 'empty muted', style: 'grid-column:1/-1' }, 'Belum ada template. Tempel JSON soal di atas untuk membuat yang pertama.'));
+        return;
+      }
+      list.replaceChildren(...items.map(card));
+    } catch (e) {
+      list.replaceChildren(h('div', { class: 'msg err', style: 'grid-column:1/-1' }, e.message));
+    }
+  }
+
+  function card(t) {
+    const s = t.stats;
+    const empty = t.questionCount === 0;
+    return h(
+      'article',
+      { class: 'card tpl' },
+      h(
+        'div',
+        {},
+        h('h3', {}, t.title),
+        t.description ? h('p', { class: 'muted small', style: 'margin-bottom:4px' }, t.description) : null,
+        h('p', { class: 'muted small' }, t.questionCount + ' soal' + (t.durationMinutes ? ' · ' + t.durationMinutes + ' menit' : '') + ' · dibuat ' + fmtDate(t.createdAt))
+      ),
+      h('div', { class: 'stats' }, stat('Skor tertinggi', fmtScore(s.highest), s.best ? s.best.name : '', s.highest != null), stat('Rata-rata', fmtScore(s.average)), stat('Percobaan', s.attempts)),
+      h(
+        'div',
+        { class: 'actions' },
+        h('a', { class: 'btn btn-primary', href: '#/t/' + t.id, 'aria-disabled': empty ? 'true' : null }, 'Kerjakan'),
+        h('a', { class: 'btn', href: '#/t/' + t.id + '/skor' }, 'Papan skor'),
+        h('button', { class: 'btn btn-ghost danger', type: 'button', onclick: () => remove(t) }, 'Hapus')
+      ),
+      h('p', { class: 'muted small' }, 'ID untuk terminal: ', h('code', {}, t.id))
+    );
+  }
+
+  async function remove(t) {
+    if (!confirm('Hapus template “' + t.title + '” beserta semua skornya? Ini tidak bisa dibatalkan.')) return;
+    try {
+      await api('/templates/' + t.id, { method: 'DELETE' });
+      toast('Template dihapus.');
+    } catch (e) {
+      toast(e.message);
+    }
+    loadList();
+  }
+
+  const help = h(
+    'details',
+    { class: 'help' },
+    h('summary', {}, 'Lihat format JSON'),
+    h('pre', {}, JSON.stringify(EXAMPLE, null, 2)),
+    h(
+      'ul',
+      {},
+      h('li', {}, 'Pilihan ganda: "type": "multiple_choice" (atau cukup ada "options"). "answer" boleh huruf ("B"), teks pilihan persis, atau nomor mulai dari 0.'),
+      h('li', {}, 'Pilih banyak jawaban: "type": "multiple_select" dengan "answer": ["A","C"] (atau "correctAnswers": [0, 2]). Dianggap benar kalau semua pilihan tepat.'),
+      h('li', {}, 'Benar/Salah: "type": "true_false" dengan "statements": [{ "text": "...", "answer": true }]. Untuk label lain tambahkan "labels": ["Tepat", "Tidak Tepat"].'),
+      h('li', {}, 'Isian singkat: tanpa "options". "answer" boleh satu teks atau daftar jawaban yang sama-sama benar.'),
+      h('li', {}, 'Bacaan: taruh teks di "passages", lalu panggil dengan "passageId" di tiap soal. Satu bacaan bisa dipakai banyak soal.'),
+      h('li', {}, 'Opsional: "description", "durationMinutes" (timer hitung mundur), dan "explanation" (pembahasan) per soal.'),
+      h('li', {}, 'Nama kunci bahasa Indonesia juga diterima: judul, soal, pertanyaan, opsi, jawaban, pembahasan.')
+    )
+  );
+
+  show(
+    h(
+      'section',
+      { class: 'card' },
+      h('h1', {}, 'Buat template soal'),
+      h('p', { class: 'muted', style: 'margin:0 0 14px' }, 'Tempel JSON soal, klik buat, lalu template langsung bisa dikerjakan.'),
+      ta,
+      h(
+        'div',
+        { class: 'row', style: 'margin-top:12px' },
+        makeBtn,
+        h('button', { class: 'btn', type: 'button', onclick: () => { ta.value = JSON.stringify(EXAMPLE, null, 2); msg.replaceChildren(); msg.className = 'msg'; } }, 'Isi contoh'),
+        h('button', { class: 'btn', type: 'button', onclick: paste }, 'Tempel dari clipboard')
+      ),
+      msg,
+      help
+    ),
+    h('section', { class: 'section' }, h('h2', {}, 'Template kamu'), list),
+    window.SOAL_LOCAL ? terminalSection(loadList) : null,
+    window.SOAL_LOCAL ? dataSection(loadList) : null
+  );
+  loadList();
+}
+
+/* ---------- Mengerjakan soal ---------- */
+
+async function renderQuiz(id) {
+  stopTimer();
+  let t;
+  try {
+    t = await api('/templates/' + encodeURIComponent(id));
+  } catch (e) {
+    return renderError(e.message);
+  }
+  document.title = t.title + ' · Soal Maker';
+  if (!t.questions.length) return renderError('Template ini tidak punya soal lagi.');
+
+  const total = t.questions.length;
+  const answers = {};
+  t.questions.forEach((q) => {
+    if (q.type === 'banyak') answers[q.id] = [];
+    if (q.type === 'benar_salah') answers[q.id] = q.statements.map(() => null);
+  });
+  let savedName = '';
+  try { savedName = localStorage.getItem('soalmaker_name') || ''; } catch (e) { /* abaikan */ }
+
+  function isAnswered(q) {
+    const v = answers[q.id];
+    if (q.type === 'pilihan') return typeof v === 'number';
+    if (q.type === 'banyak') return v.length > 0;
+    if (q.type === 'benar_salah') return v.every((x) => x !== null);
+    return typeof v === 'string' && v !== '';
+  }
+  function answered() {
+    return t.questions.filter(isAnswered).length;
+  }
+
+  const nameInput = h('input', { class: 'input', id: 'name', maxlength: '40', placeholder: 'Nama kamu', autocomplete: 'name', value: savedName });
+  const barFill = h('i', {});
+  const lbl = h('span', {}, 'Terjawab 0/' + total);
+  const timerEl = t.durationMinutes ? h('span', { class: 'timer' }, '') : null;
+  const errBox = h('div', { class: 'msg', role: 'alert' });
+  const submitBtn = h('button', { class: 'btn btn-primary', type: 'button', onclick: () => submit(false) }, 'Kumpulkan jawaban');
+
+  function refresh() {
+    const n = answered();
+    lbl.textContent = 'Terjawab ' + n + '/' + total;
+    barFill.style.width = (n / total) * 100 + '%';
+  }
+
+  const pIdx = passageIndex(t);
+  const qNodes = t.questions.map((q, i) => {
+    let body;
+    let hint = null;
+    if (q.type === 'pilihan') {
+      body = h(
+        'div',
+        { class: 'opts', role: 'radiogroup', 'aria-label': 'Soal ' + (i + 1) },
+        q.options.map((o, j) =>
+          h(
+            'label',
+            { class: 'opt' },
+            h('input', { type: 'radio', name: q.id, onchange: () => { answers[q.id] = j; refresh(); } }),
+            h('span', { class: 'ltr' }, String.fromCharCode(65 + j)),
+            h('span', { class: 'txt' }, o)
+          )
+        )
+      );
+    } else if (q.type === 'banyak') {
+      hint = h('p', { class: 'hint' }, 'Pilih semua jawaban yang benar.');
+      body = h(
+        'div',
+        { class: 'opts', role: 'group', 'aria-label': 'Soal ' + (i + 1) },
+        q.options.map((o, j) =>
+          h(
+            'label',
+            { class: 'opt' },
+            h('input', {
+              type: 'checkbox',
+              onchange: (e) => {
+                const a = answers[q.id];
+                const k = a.indexOf(j);
+                if (e.target.checked && k < 0) a.push(j);
+                else if (!e.target.checked && k >= 0) a.splice(k, 1);
+                a.sort((x, y) => x - y);
+                refresh();
+              },
+            }),
+            h('span', { class: 'ltr' }, String.fromCharCode(65 + j)),
+            h('span', { class: 'txt' }, o)
+          )
+        )
+      );
+    } else if (q.type === 'benar_salah') {
+      hint = h('p', { class: 'hint' }, 'Tentukan jawaban untuk setiap pernyataan.');
+      body = h(
+        'div',
+        { class: 'tfs' },
+        q.statements.map((s, j) =>
+          h(
+            'div',
+            { class: 'tfrow' },
+            h('p', { class: 'tft' }, s),
+            h(
+              'div',
+              { class: 'seg', role: 'radiogroup', 'aria-label': 'Pernyataan ' + (j + 1) },
+              [true, false].map((val) =>
+                h(
+                  'label',
+                  { class: 'segopt' },
+                  h('input', { type: 'radio', name: q.id + '_' + j, onchange: () => { answers[q.id][j] = val; refresh(); } }),
+                  h('span', {}, val ? q.labels[0] : q.labels[1])
+                )
+              )
+            )
+          )
+        )
+      );
+    } else {
+      body = h(
+        'div',
+        { class: 'fill' },
+        h('input', {
+          class: 'input',
+          type: 'text',
+          autocomplete: 'off',
+          'aria-label': 'Jawaban soal ' + (i + 1),
+          placeholder: 'Ketik jawabanmu…',
+          oninput: (e) => { answers[q.id] = e.target.value.trim(); refresh(); },
+        })
+      );
+    }
+    return h('section', { class: 'card q' }, passageNode(t, pIdx, q, i, false), h('div', { class: 'qn' }, h('span', { class: 'num' }, i + 1), h('p', { class: 'qt' }, q.question)), hint, body);
+  });
+
+  async function submit(force) {
+    errBox.className = 'msg';
+    errBox.replaceChildren();
+    const name = nameInput.value.trim();
+    if (!name) {
+      errBox.className = 'msg err';
+      errBox.replaceChildren(h('strong', {}, force ? 'Waktu habis. Isi nama kamu lalu kumpulkan jawaban.' : 'Isi nama dulu ya.'));
+      nameInput.focus();
+      nameInput.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      return;
+    }
+    const left = total - answered();
+    if (!force && left > 0 && !confirm(left + ' soal belum dijawab dan akan dihitung salah. Tetap kumpulkan?')) return;
+    try { localStorage.setItem('soalmaker_name', name); } catch (e) { /* abaikan */ }
+    submitBtn.disabled = true;
+    try {
+      const result = await api('/templates/' + encodeURIComponent(t.id) + '/submit', { method: 'POST', body: { name, answers } });
+      stopTimer();
+      renderResult(t, result);
+    } catch (e) {
+      submitBtn.disabled = false;
+      errBox.className = 'msg err';
+      errBox.replaceChildren(h('strong', {}, e.message));
+    }
+  }
+
+  if (timerEl) {
+    const deadline = Date.now() + t.durationMinutes * 60000;
+    const tick = () => {
+      const leftMs = Math.max(0, deadline - Date.now());
+      const s = Math.ceil(leftMs / 1000);
+      timerEl.textContent = leftMs > 0 ? '⏱ ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') : '⏱ Waktu habis';
+      timerEl.classList.toggle('low', leftMs < 5 * 60000);
+      if (leftMs <= 0) {
+        stopTimer();
+        submit(true);
+      }
+    };
+    tick();
+    quizTimer = setInterval(tick, 1000);
+  }
+
+  show(
+    h('a', { class: 'back', href: '#/' }, '← Semua template'),
+    h(
+      'div',
+      { class: 'quiz-head' },
+      h(
+        'div',
+        {},
+        h('h1', {}, t.title),
+        t.description ? h('p', { class: 'muted', style: 'margin:0 0 4px' }, t.description) : null,
+        h('p', { class: 'muted', style: 'margin:0' }, total + ' soal' + (t.durationMinutes ? ' · waktu ' + t.durationMinutes + ' menit' : ''))
+      ),
+      h('a', { class: 'btn btn-small', href: '#/t/' + t.id + '/skor' }, 'Papan skor')
+    ),
+    h('div', { class: 'card', style: 'margin-top:16px' }, h('label', { for: 'name', class: 'small muted', style: 'display:block;margin-bottom:6px' }, 'Nama (untuk papan skor)'), nameInput),
+    h('div', { class: 'progress' }, h('div', { class: 'lbl' }, lbl, timerEl), h('div', { class: 'bar' }, barFill)),
+    ...qNodes,
+    h('div', { class: 'submit-bar' }, submitBtn),
+    errBox
+  );
+}
+
+/* ---------- Hasil + pembahasan ---------- */
+
+function renderResult(t, r) {
+  stopTimer();
+  window.scrollTo(0, 0);
+  const s = r.stats;
+  const pIdx = passageIndex(t);
+
+  const badges = [];
+  if (r.isNewHighest) badges.push(h('span', { class: 'badge gold' }, '🏆 Skor tertinggi baru di template ini!'));
+  else if (r.rank) badges.push(h('span', { class: 'badge' }, 'Peringkat ' + r.rank + ' dari ' + r.players + ' pemain'));
+
+  function optionRows(q, isRight, isMine) {
+    return q.options.map((o, j) => {
+      const right = isRight(j);
+      const mine = isMine(j);
+      const cls = right ? ' correct' : mine ? ' wrong' : '';
+      let tag = null;
+      if (right && mine) tag = '✓ Jawabanmu';
+      else if (right) tag = q.type === 'banyak' ? '✓ Kunci (terlewat)' : '✓ Kunci';
+      else if (mine) tag = '✗ Jawabanmu';
+      return h('div', { class: 'opt static' + cls }, h('span', { class: 'ltr' }, String.fromCharCode(65 + j)), h('span', { class: 'txt' }, o), tag ? h('span', { class: 'tagx' }, tag) : null);
+    });
+  }
+
+  const review = r.review.map((q, i) => {
+    let body;
+    if (q.type === 'pilihan') {
+      body = h('div', { class: 'opts' }, optionRows(q, (j) => j === q.correctIndex, (j) => j === q.given));
+      if (q.given === null) body.append(h('p', { class: 'muted small', style: 'margin:4px 0 0' }, 'Tidak dijawab.'));
+    } else if (q.type === 'banyak') {
+      body = h('div', { class: 'opts' }, optionRows(q, (j) => q.correctIndexes.includes(j), (j) => q.given.includes(j)));
+      if (!q.given.length) body.append(h('p', { class: 'muted small', style: 'margin:4px 0 0' }, 'Tidak dijawab.'));
+    } else if (q.type === 'benar_salah') {
+      body = h(
+        'div',
+        { class: 'tfs' },
+        q.statements.map((st) =>
+          h(
+            'div',
+            { class: 'tfrow review ' + (st.correct ? 'ok' : 'no') },
+            h('p', { class: 'tft' }, st.text),
+            h(
+              'p',
+              { class: 'tfans small' },
+              'Jawabanmu: ',
+              h('b', {}, st.given === null ? '(kosong)' : st.given ? q.labels[0] : q.labels[1]),
+              ' · Kunci: ',
+              h('b', {}, st.answer ? q.labels[0] : q.labels[1]),
+              ' ',
+              h('span', { class: 'verdict ' + (st.correct ? 'ok' : 'no'), style: 'margin-left:6px' }, st.correct ? '✓' : '✗')
+            )
+          )
+        )
+      );
+    } else {
+      body = h(
+        'div',
+        {},
+        h('p', { class: 'answerline' }, 'Jawabanmu: ', h('b', {}, q.givenText || '(kosong)')),
+        h('p', { class: 'answerline' }, 'Kunci: ', h('b', {}, q.correctAnswers.join('  /  ')))
+      );
+    }
+    return h(
+      'section',
+      { class: 'card q ' + (q.correct ? 'ok' : 'no') },
+      passageNode(t, pIdx, q, i, true),
+      h('div', { class: 'qn' }, h('span', { class: 'num' }, i + 1), h('p', { class: 'qt' }, q.question), h('span', { class: 'verdict ' + (q.correct ? 'ok' : 'no') }, q.correct ? 'Benar' : 'Salah')),
+      body,
+      q.explanation ? h('div', { class: 'expl' }, h('b', {}, 'Pembahasan: '), q.explanation) : null
+    );
+  });
+
+  show(
+    h('a', { class: 'back', href: '#/' }, '← Semua template'),
+    h(
+      'section',
+      { class: 'card result' },
+      h('p', { class: 'muted', style: 'margin:0 0 6px' }, t.title + ' · ' + r.name),
+      h('div', { class: 'big' }, fmtScore(r.score), h('small', {}, ' / 100')),
+      h('p', { class: 'sub' }, r.correct + ' benar dari ' + r.total + ' soal'),
+      ...badges,
+      h(
+        'div',
+        { class: 'stats', style: 'margin-top:20px;text-align:left' },
+        stat('Skor tertinggi', fmtScore(s.highest), s.best ? s.best.name : '', true),
+        stat('Rata-rata', fmtScore(s.average)),
+        stat('Percobaan', s.attempts)
+      ),
+      h(
+        'div',
+        { class: 'actions' },
+        h('button', { class: 'btn btn-primary', type: 'button', onclick: () => renderQuiz(t.id) }, 'Kerjakan lagi'),
+        h('a', { class: 'btn', href: '#/t/' + t.id + '/skor' }, 'Papan skor'),
+        h('a', { class: 'btn', href: '#/' }, 'Beranda')
+      )
+    ),
+    h('h2', { style: 'margin-top:28px' }, 'Pembahasan'),
+    h('div', { class: 'review' }, review)
+  );
+}
+
+/* ---------- Papan skor ---------- */
+
+async function renderScores(id) {
+  stopTimer();
+  let d;
+  try {
+    d = await api('/templates/' + encodeURIComponent(id) + '/scores');
+  } catch (e) {
+    return renderError(e.message);
+  }
+  document.title = 'Skor · ' + d.title;
+  const s = d.stats;
+  let me = '';
+  try { me = (localStorage.getItem('soalmaker_name') || '').trim().toLowerCase(); } catch (e) { /* abaikan */ }
+
+  const tiles = h(
+    'div',
+    { class: 'tiles' },
+    h('div', { class: 'tile hi' }, h('div', { class: 'v' }, fmtScore(s.highest)), h('div', { class: 'l' }, 'Skor tertinggi'), s.best ? h('div', { class: 's' }, s.best.name) : null),
+    h('div', { class: 'tile' }, h('div', { class: 'v' }, fmtScore(s.average)), h('div', { class: 'l' }, 'Rata-rata')),
+    h('div', { class: 'tile' }, h('div', { class: 'v' }, fmtScore(s.lowest)), h('div', { class: 'l' }, 'Skor terendah')),
+    h('div', { class: 'tile' }, h('div', { class: 'v' }, s.attempts), h('div', { class: 'l' }, 'Percobaan'), h('div', { class: 's muted' }, s.players + ' pemain'))
+  );
+
+  const table = d.board.length
+    ? h(
+        'div',
+        { class: 'table-wrap' },
+        h(
+          'table',
+          {},
+          h('thead', {}, h('tr', {}, h('th', {}, '#'), h('th', {}, 'Nama'), h('th', { class: 'num' }, 'Skor'), h('th', { class: 'num' }, 'Benar'), h('th', { class: 'num' }, 'Main'), h('th', {}, 'Waktu'))),
+          h(
+            'tbody',
+            {},
+            d.board.map((r) =>
+              h(
+                'tr',
+                { class: (r.rank === 1 ? 'top1 ' : '') + (me && r.name.toLowerCase() === me ? 'me' : '') },
+                h('td', { class: 'rank' }, r.rank === 1 ? '🏆' : r.rank),
+                h('td', {}, r.name),
+                h('td', { class: 'num' }, h('b', {}, fmtScore(r.score))),
+                h('td', { class: 'num' }, r.correct + '/' + r.total),
+                h('td', { class: 'num' }, r.attempts),
+                h('td', { class: 'muted' }, fmtDate(r.at))
+              )
+            )
+          )
+        )
+      )
+    : h('div', { class: 'empty muted', style: 'margin-top:12px' }, 'Belum ada yang mengerjakan template ini.');
+
+  show(
+    h('a', { class: 'back', href: '#/' }, '← Semua template'),
+    h('div', { class: 'quiz-head' }, h('div', {}, h('h1', {}, d.title), h('p', { class: 'muted', style: 'margin:0' }, 'Papan skor · ' + d.questionCount + ' soal')), d.questionCount ? h('a', { class: 'btn btn-primary btn-small', href: '#/t/' + d.id }, 'Kerjakan') : null),
+    tiles,
+    h('p', { class: 'muted small', style: 'margin:18px 0 0' }, 'Papan skor menampilkan skor terbaik tiap pemain.'),
+    table
+  );
+}
+
+/* ---------- Router ---------- */
+
+function route() {
+  const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
+  window.scrollTo(0, 0);
+  if (parts[0] === 't' && parts[1]) {
+    const id = decodeURIComponent(parts[1]);
+    return parts[2] === 'skor' ? renderScores(id) : renderQuiz(id);
+  }
+  renderHome();
+}
+
+window.addEventListener('hashchange', route);
+route();
+
+  </script>
+</body>
+</html>
